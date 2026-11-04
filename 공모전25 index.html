@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>모여봐요 A+의 숲</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            height: 100dvh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #1b5e20;
+            font-family: 'Jua', 'Gamja Flower', '맑은 고딕', sans-serif;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        #game-container {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; 
+            height: 100%;
+            height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            background-color: #e8f5e9;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: env(safe-area-inset-bottom);
+            padding-left: env(safe-area-inset-left);
+            padding-right: env(safe-area-inset-right);
+        }
+
+        /* ---------------- [ 세로 타이틀 화면 ] ---------------- */
+        #title-screen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; 
+            height: 100%;
+            height: 100dvh;
+            background-color: #388e3c;
+            background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url('image_28563c.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            text-align: center;
+            padding: 20px 15px;
+        }
+
+        .ac-logo-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+            filter: drop-shadow(0px 8px 12px rgba(0,0,0,0.4));
+        }
+
+        .ac-badge-row {
+            display: flex;
+            gap: 8px;
+            margin-bottom: -10px;
+            z-index: 2;
+        }
+
+        .ac-badge {
+            width: clamp(38px, 8vw, 48px);
+            height: clamp(38px, 8vw, 48px);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: clamp(20px, 4.5vw, 24px);
+            font-weight: 900;
+            color: white;
+            border: 3px solid #ffffff;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+        .b-red { background-color: #ff5252; transform: rotate(-5deg); }
+        .b-yellow { background-color: #ffb300; transform: rotate(3deg); }
+        .b-green { background-color: #66bb6a; transform: rotate(-3deg); }
+        .b-blue { background-color: #42a5f5; transform: rotate(4deg); }
+
+        .ac-main-title {
+            background: #fff8e1;
+            padding: 10px clamp(18px, 5vw, 32px);
+            border-radius: 40px;
+            border: 5px solid #558b2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: inset 0 -4px 0 #d7ccc8;
+            transform: rotate(-1.5deg);
+        }
+
+        .ac-title-text {
+            font-size: clamp(34px, 8.5vw, 52px);
+            font-weight: 900;
+            color: #f57f17;
+            text-shadow: 
+                -2px -2px 0 #ffffff,  
+                 2px -2px 0 #ffffff,
+                -2px  2px 0 #ffffff,
+                 2px  2px 0 #ffffff,
+                 3px  4px 0 #33691e;
+            letter-spacing: 1px;
+        }
+
+        .ac-leaf-icon {
+            width: clamp(34px, 7vw, 45px);
+            height: clamp(34px, 7vw, 45px);
+            animation: leafWiggle 2s infinite ease-in-out;
+        }
+
+        @keyframes leafWiggle {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(15deg); }
+        }
+
+        /* 💡 세로 모드 게임 목표 안내 카드 */
+        .game-guide-card {
+            background: rgba(255, 255, 255, 0.93);
+            border: 4px solid #7cb342;
+            border-radius: 20px;
+            padding: 14px clamp(16px, 4vw, 28px);
+            margin-bottom: 25px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.25);
+            width: 92%;
+            max-width: 420px;
+            text-align: center;
+        }
+
+        .game-guide-title {
+            font-size: clamp(17px, 4vw, 20px);
+            font-weight: bold;
+            color: #33691e;
+            margin-bottom: 6px;
+        }
+
+        .game-guide-desc {
+            font-size: clamp(15px, 3.8vw, 18px);
+            line-height: 1.6;
+            color: #333333;
+            font-weight: bold;
+        }
+
+        .game-guide-desc b {
+            color: #e65100;
+        }
+
+        .touch-text {
+            font-size: clamp(16px, 4vw, 20px);
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            animation: blink 1.5s infinite;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 10px 32px;
+            border-radius: 30px;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        /* ---------------- [ 상단 헤더 ] ---------------- */
+        .header-bar {
+            height: clamp(48px, 7dvh, 55px);
+            background-color: #689f38;
+            color: white;
+            padding: 0 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid #33691e;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .status-group {
+            display: flex;
+            gap: 12px;
+            font-size: clamp(15px, 3.8vw, 19px);
+            font-weight: bold;
+        }
+
+        .status-item {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 4px 12px;
+            border-radius: 15px;
+        }
+
+        .bgm-btn {
+            background-color: #ffb74d;
+            border: 2px solid #f57c00;
+            border-radius: 20px;
+            padding: 5px 14px;
+            font-size: clamp(13px, 3.2vw, 16px);
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+        }
+
+        /* ---------------- [ 메인 화면 & 세로 3인칭 맵 ] ---------------- */
+        .main-screen {
+            flex: 1;
+            background: linear-gradient(to bottom, #c8e6c9, #aed581);
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .scene-location-badge {
+            position: absolute;
+            top: 12px;
+            left: 14px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #33691e;
+            padding: 5px 16px;
+            border-radius: 20px;
+            font-size: clamp(14px, 3.5vw, 17px);
+            font-weight: bold;
+            border: 2px solid #8bc34a;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 5;
+        }
+
+        .graphic-wrapper {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 탈모 애니메이션 */
+        @keyframes hairFallLeft1 {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            40% { transform: translate(-45px, -60px) rotate(-140deg); opacity: 1; }
+            100% { transform: translate(-100px, 130px) rotate(-320deg); opacity: 0; }
+        }
+        @keyframes hairFallRight1 {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            40% { transform: translate(50px, -55px) rotate(130deg); opacity: 1; }
+            100% { transform: translate(110px, 140px) rotate(340deg); opacity: 0; }
+        }
+        @keyframes hairFallCenter {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            50% { transform: translate(15px, -70px) rotate(180deg); opacity: 1; }
+            100% { transform: translate(30px, 150px) rotate(360deg); opacity: 0; }
+        }
+
+        .falling-hair-l1 { animation: hairFallLeft1 1.4s infinite cubic-bezier(0.2, 0.8, 0.4, 1); }
+        .falling-hair-r1 { animation: hairFallRight1 1.6s infinite cubic-bezier(0.2, 0.8, 0.4, 1) 0.3s; }
+        .falling-hair-c { animation: hairFallCenter 1.8s infinite cubic-bezier(0.2, 0.8, 0.4, 1) 0.6s; }
+
+        /* ---------------- [ 하단 말풍선 + 좌측 조이스틱 패널 ] ---------------- */
+        .bottom-panel {
+            height: clamp(160px, 24dvh, 210px);
+            background: #ffffff;
+            border-top: 5px solid #8bc34a;
+            padding: 10px clamp(10px, 2.5vw, 18px);
+            display: flex;
+            align-items: center;
+            gap: clamp(10px, 2.5vw, 16px);
+            flex-shrink: 0;
+            cursor: pointer;
+            z-index: 200;
+        }
+
+        /* 🕹️ 좌측 조이스틱 영역 */
+        #joystick-wrapper {
+            width: clamp(95px, 24vw, 120px);
+            height: clamp(95px, 24vw, 120px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        #joystick-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: rgba(139, 195, 74, 0.15);
+            border: 3px solid #7cb342;
+            border-radius: 50%;
+            touch-action: none;
+            display: none;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.1);
+        }
+
+        #joystick-thumb {
+            position: absolute;
+            top: calc(50% - clamp(18px, 4.5vw, 23px));
+            left: calc(50% - clamp(18px, 4.5vw, 23px));
+            width: clamp(36px, 9vw, 46px);
+            height: clamp(36px, 9vw, 46px);
+            background: #8bc34a;
+            border: 3px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+            pointer-events: none;
+            transition: transform 0.05s ease-out;
+        }
+
+        /* 말풍선 대화 상자 */
+        .dialogue-box {
+            flex: 1;
+            height: 100%;
+            background: #f1f8e9;
+            border: 3px solid #c5e1a5;
+            border-radius: 18px;
+            padding: clamp(10px, 2vh, 15px) clamp(12px, 3vw, 20px);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);
+            min-width: 0;
+        }
+
+        .dialogue-text {
+            font-size: clamp(15px, 3.8vw, 19px);
+            line-height: 1.5;
+            color: #2e7d32;
+            font-weight: bold;
+            overflow-y: auto;
+            word-break: keep-all;
+        }
+
+        .tap-indicator {
+            align-self: flex-end;
+            font-size: clamp(12px, 3vw, 14px);
+            color: #558b2f;
+            font-weight: bold;
+            animation: pulseTap 1.2s infinite ease-in-out;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        @keyframes pulseTap {
+            0%, 100% { opacity: 1; transform: translateY(0); }
+            50% { opacity: 0.4; transform: translateY(3px); }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bgm-audio" loop preload="auto">
+        <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3" type="audio/mpeg">
+    </audio>
+
+    <div id="game-container">
+        <!-- 세로 타이틀 화면 -->
+        <div id="title-screen" onclick="startGame()">
+            <div class="ac-logo-box">
+                <div class="ac-badge-row">
+                    <div class="ac-badge b-red">모</div>
+                    <div class="ac-badge b-yellow">여</div>
+                    <div class="ac-badge b-green">봐</div>
+                    <div class="ac-badge b-blue">요</div>
+                </div>
+                <div class="ac-main-title">
+                    <span class="ac-title-text">A+의 숲</span>
+                    <svg class="ac-leaf-icon" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M50 10 C80 10 90 40 90 70 C90 85 75 90 60 90 C30 90 10 60 10 30 C10 15 25 10 50 10 Z" fill="#8BC34A" stroke="#33691E" stroke-width="5"/>
+                        <path d="M25 75 Q 50 50 80 20" stroke="#33691E" stroke-width="5" stroke-linecap="round"/>
+                        <path d="M45 55 Q 60 65 70 60" stroke="#33691E" stroke-width="4" stroke-linecap="round"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- 💡 세로 게임 목표 안내 카드 -->
+            <div class="game-guide-card">
+                <div class="game-guide-title">🎓 [ 게임 목표 ]</div>
+                <div class="game-guide-desc">
+                    동기들과 소통하며 <b>우정</b>과 <b>지식</b> 스탯을 가득 채우고,<br>
+                    최종 <b>A+학점을 받아보세요!</b>
+                </div>
+            </div>
+
+            <div class="touch-text">화면을 터치하여 시작하기</div>
+        </div>
+
+        <!-- 상단 헤더 바 -->
+        <div class="header-bar">
+            <div class="status-group">
+                <div class="status-item">🧠 지식: <span id="stat-knowledge">0</span></div>
+                <div class="status-item">🤝 우정: <span id="stat-friendship">0</span></div>
+            </div>
+            <button class="bgm-btn" id="bgm-toggle" onclick="toggleBGM(event)">🎵 BGM 켜기</button>
+        </div>
+
+        <!-- 메인 화면 -->
+        <div class="main-screen" id="main-screen">
+            <div class="scene-location-badge" id="scene-location">학교 정문</div>
+            <div class="graphic-wrapper" id="graphic-wrapper" onclick="handleScreenClick()"></div>
+        </div>
+
+        <!-- 하단 패널 (좌측 조이스틱 + 우측 대화 상자) -->
+        <div class="bottom-panel" onclick="handleScreenClick()">
+            <div id="joystick-wrapper">
+                <div id="joystick-container">
+                    <div id="joystick-thumb"></div>
+                </div>
+            </div>
+
+            <div class="dialogue-box">
+                <div class="dialogue-text" id="dialogue-text"></div>
+                <div class="tap-indicator" id="tap-indicator">화면을 터치하세요 ▼</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            let bgmPlaying = false;
+            let isStarted = false;
+            let gameData = { knowledge: 0, friendship: 0, currentScene: 0 };
+
+            // 🕹️ 캐릭터 출구(하단 x:50, y:450)에서 시작
+            let playerPos = { x: 50, y: 450 };
+            let joystickVec = { x: 0, y: 0 };
+            let isJoystickActive = false;
+            const moveSpeed = 3.8;
+            let keysPressed = {};
+            
+            let currentNearbyNpc = null;
+            let dialogueState = 'IDLE';
+
+            const bgmAudio = document.getElementById('bgm-audio');
+            if (bgmAudio) bgmAudio.volume = 0.25;
+
+            // 👥 박근식을 가장 안쪽/맨 뒷자리(x:280, y:110)로 이동!
+            const classroomNpcs = [
+                { id: 'npc1', name: '김동기', x: 150, y: 390, hairColor: '#E91E63', shirtColor: '#8E24AA', reply: "김동기 : 뭐야...저리가" },
+                { id: 'npc2', name: '이성재', x: 300, y: 390, hairColor: '#1E88E5', shirtColor: '#00897B', reply: "이성재 : 아몰라 나 잘거야" },
+                { id: 'npc3', name: '박민수', x: 70,  y: 250, hairColor: '#FF9800', shirtColor: '#F57C00', reply: "박민수 : 모르는 거 있어도 나한테 물어보지 마..." },
+                { id: 'npc4', name: '최유진', x: 200, y: 250, hairColor: '#AB47BC', shirtColor: '#D81B60', reply: "최유진 : 나 지금 바쁘거든? 저리 가렴." },
+                { id: 'npc5', name: '정아름', x: 330, y: 250, hairColor: '#26A69A', shirtColor: '#43A047', reply: "정아름 : 피곤해, 혼자 공부해..." },
+                { id: 'npc6', name: '한성훈', x: 100, y: 110, hairColor: '#8D6E63', shirtColor: '#5D4037', reply: "한성훈 : 어쩌라고... 나한테 말 걸지 마" },
+                { id: 'npc7', name: '박근식', x: 280, y: 110, hairColor: '#7E57C2', shirtColor: '#3F51B5', isTarget: true }
+            ];
+
+            const scenarios = [
+                {
+                    location: "학교 정문",
+                    text: "입학 전에는 매일 놀기만 하고 공부는 하나도 안 했었는데... 이제 정말 열심히 해보자!!",
+                    isWalkMode: false
+                },
+                {
+                    location: "전공 강의실",
+                    text: "아는 친구들이 아무도 없다... 그래도 나만 열심히 하면 되겠지?",
+                    isWalkMode: false
+                },
+                {
+                    location: "전공 강의실",
+                    text: "첫 수업부터 전공 용어가 너무 어렵다... 머리카락이 빠질 것 같아! 동기들도 전부 멘붕에 빠진 표정인데?",
+                    isWalkMode: false
+                },
+                {
+                    location: "전공 강의실",
+                    text: "혼자 헤매기보다는 옆 자리에 있는 친구에게 먼저 다가가서 물어봐야겠다!",
+                    isWalkMode: false
+                },
+                {
+                    location: "전공 강의실 (자유 탐색)",
+                    text: "🕹️ [조작] 조이스틱(방향키)으로 움직여서 책상에 앉아있는 동기들에게 다가가보세요!",
+                    isWalkMode: true
+                },
+                {
+                    location: "스터디 카페",
+                    text: "\"너도 이 부분 어렵지? 우리 같이 모여서 스터디할래?\" 친구들과 함께 모여 공부하기 시작했다.",
+                    isWalkMode: false
+                },
+                {
+                    location: "종강 발표장",
+                    text: "함께 서로 부족한 점을 채워주며 노력한 결과, 우리 팀 모두 훌륭한 성적을 거두었다!",
+                    isWalkMode: false
+                }
+            ];
+
+            function getSceneGraphic(sceneIndex) {
+                const defs3D = `
+                <defs>
+                    <radialGradient id="head3D" cx="35%" cy="30%" r="65%">
+                        <stop offset="0%" stop-color="#FFE0B2"/>
+                        <stop offset="60%" stop-color="#FFCC80"/>
+                        <stop offset="100%" stop-color="#E0A050"/>
+                    </radialGradient>
+                    <radialGradient id="hair3D" cx="35%" cy="25%" r="70%">
+                        <stop offset="0%" stop-color="#8D6E63"/>
+                        <stop offset="70%" stop-color="#5D4037"/>
+                        <stop offset="100%" stop-color="#3E2723"/>
+                    </radialGradient>
+                    <linearGradient id="body3D" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#42A5F5"/>
+                        <stop offset="50%" stop-color="#1E88E5"/>
+                        <stop offset="100%" stop-color="#1565C0"/>
+                    </linearGradient>
+                    <filter id="shadow3D" x="-20%" y="-20%" width="140%" height="140%">
+                        <feDropShadow dx="0" dy="5" stdDeviation="3.5" flood-opacity="0.3"/>
+                    </filter>
+                </defs>`;
+
+                if (sceneIndex === 0) {
+                    return `
+                    <svg width="100%" height="100%" viewBox="0 0 240 320" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        ${defs3D}
+                        <ellipse cx="120" cy="285" rx="65" ry="14" fill="#000000" opacity="0.3"/>
+                        <g filter="url(#shadow3D)" transform="translate(20, 20)">
+                            <rect x="35" y="145" width="28" height="45" rx="8" fill="#8D6E63"/>
+                            <path d="M60 140 L140 140 L148 195 L52 195 Z" fill="url(#body3D)"/>
+                            <polygon points="80,140 100,158 120,140" fill="#FFFFFF"/>
+                            <rect x="70" y="195" width="20" height="26" rx="6" fill="#37474F"/>
+                            <rect x="110" y="195" width="20" height="26" rx="6" fill="#37474F"/>
+                            <ellipse cx="80" cy="220" rx="14" ry="7" fill="#D84315"/>
+                            <ellipse cx="120" cy="220" rx="14" ry="7" fill="#D84315"/>
+                            <circle cx="100" cy="85" r="58" fill="url(#head3D)"/>
+                            <path d="M42 78 C52 40, 85 28, 100 30 C115 28, 148 40, 158 78 C145 55, 120 52, 100 58 C80 52, 55 55, 42 78 Z" fill="url(#hair3D)"/>
+                            <ellipse cx="75" cy="88" rx="10" ry="15" fill="#212121"/>
+                            <ellipse cx="125" cy="88" rx="10" ry="15" fill="#212121"/>
+                            <circle cx="72" cy="82" r="4" fill="#FFFFFF"/>
+                            <circle cx="122" cy="82" r="4" fill="#FFFFFF"/>
+                            <ellipse cx="62" cy="102" rx="9" ry="5" fill="#FF8A80" opacity="0.85"/>
+                            <ellipse cx="138" cy="102" rx="9" ry="5" fill="#FF8A80" opacity="0.85"/>
+                            <path d="M92 102 Q100 110 108 102" stroke="#5D4037" stroke-width="4" stroke-linecap="round" fill="none"/>
+                        </g>
+                    </svg>`;
+                } 
+
+                if (sceneIndex === 4) {
+                    let npcsGraphic = '';
+                    classroomNpcs.forEach(npc => {
+                        npcsGraphic += `
+                        <g transform="translate(${npc.x}, ${npc.y}) scale(0.48)" filter="url(#shadow3D)">
+                            <rect x="0" y="115" width="125" height="20" fill="#8D6E63" rx="4" stroke="#4E342E" stroke-width="2"/>
+                            <rect x="12" y="135" width="10" height="30" fill="#5D4037"/>
+                            <rect x="100" y="135" width="10" height="30" fill="#5D4037"/>
+                            
+                            <rect x="22" y="102" width="14" height="22" rx="6" fill="${npc.shirtColor}"/>
+                            <rect x="88" y="102" width="14" height="22" rx="6" fill="${npc.shirtColor}"/>
+                            <circle cx="29" cy="126" r="6" fill="#FFCC80"/>
+                            <circle cx="95" cy="126" r="6" fill="#FFCC80"/>
+
+                            <rect x="36" y="135" width="15" height="26" rx="5" fill="#37474F"/>
+                            <rect x="72" y="135" width="15" height="26" rx="5" fill="#37474F"/>
+                            <ellipse cx="43" cy="163" rx="10" ry="5" fill="#D84315"/>
+                            <ellipse cx="79" cy="163" rx="10" ry="5" fill="#D84315"/>
+
+                            <path d="M32 82 L92 82 L98 122 L26 122 Z" fill="${npc.shirtColor}"/>
+                            <circle cx="62" cy="45" r="40" fill="url(#head3D)"/>
+                            <path d="M22 42 C32 16, 92 16, 102 42 Z" fill="${npc.hairColor}"/>
+
+                            <ellipse cx="46" cy="46" rx="7" ry="10" fill="#212121"/>
+                            <ellipse cx="78" cy="46" rx="7" ry="10" fill="#212121"/>
+                            <circle cx="44" cy="42" r="3" fill="#FFFFFF"/>
+                            <circle cx="76" cy="42" r="3" fill="#FFFFFF"/>
+                            <path d="M54 60 Q62 68 70 60" stroke="#5D4037" stroke-width="3" stroke-linecap="round" fill="none"/>
+                            <text x="36" y="-8" font-size="28">💬</text>
+                        </g>`;
+                    });
+
+                    return `
+                    <svg id="walk-map-svg" width="100%" height="100%" viewBox="0 0 400 520" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        ${defs3D}
+                        <rect x="0" y="0" width="400" height="520" fill="#E8D5B7"/>
+                        <line x1="0" y1="170" x2="400" y2="170" stroke="#D7CCC8" stroke-width="4"/>
+                        <line x1="0" y1="320" x2="400" y2="320" stroke="#D7CCC8" stroke-width="4"/>
+
+                        ${npcsGraphic}
+
+                        <g id="player-avatar-3d" transform="translate(${playerPos.x}, ${playerPos.y}) scale(0.48)" filter="url(#shadow3D)">
+                            <ellipse cx="62" cy="168" rx="38" ry="9" fill="#000" opacity="0.25"/>
+                            
+                            <rect x="36" y="135" width="15" height="28" rx="5" fill="#37474F"/>
+                            <rect x="72" y="135" width="15" height="28" rx="5" fill="#37474F"/>
+                            <ellipse cx="43" cy="165" rx="10" ry="6" fill="#D84315"/>
+                            <ellipse cx="79" cy="165" rx="10" ry="6" fill="#D84315"/>
+
+                            <rect x="18" y="90" width="18" height="34" rx="5" fill="#8D6E63"/>
+                            <path d="M36 85 L88 85 L94 135 L30 135 Z" fill="url(#body3D)"/>
+                            <polygon points="50,85 62,98 74,85" fill="#FFFFFF"/>
+
+                            <rect x="20" y="90" width="13" height="26" rx="6" fill="#1E88E5"/>
+                            <rect x="91" y="90" width="13" height="26" rx="6" fill="#1E88E5"/>
+                            <circle cx="26" cy="118" r="6" fill="#FFCC80"/>
+                            <circle cx="97" cy="118" r="6" fill="#FFCC80"/>
+
+                            <circle cx="62" cy="45" r="42" fill="url(#head3D)"/>
+                            <path d="M22 42 C28 16, 50 10, 62 12 C74 10, 96 16, 102 42 C92 28, 74 26, 62 30 C50 26, 32 28, 22 42 Z" fill="url(#hair3D)"/>
+                            
+                            <!-- 😃 실시간 표정 변화 그룹 -->
+                            <g id="player-face-features">
+                                <ellipse cx="46" cy="46" rx="7" ry="10" fill="#212121"/>
+                                <ellipse cx="78" cy="46" rx="7" ry="10" fill="#212121"/>
+                                <circle cx="44" cy="42" r="3" fill="#FFFFFF"/>
+                                <circle cx="76" cy="42" r="3" fill="#FFFFFF"/>
+                                <path d="M54 60 Q62 56 70 60" stroke="#5D4037" stroke-width="3" stroke-linecap="round" fill="none"/>
+                            </g>
+                        </g>
+                    </svg>`;
+                }
+
+                const isHairFalling = (sceneIndex === 2);
+                return `
+                <svg width="100%" height="100%" viewBox="0 0 400 450" preserveAspectRatio="xMidYMid meet" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    ${defs3D}
+                    <rect x="0" y="0" width="400" height="350" fill="#E8E0D0"/>
+                    <rect x="0" y="350" width="400" height="100" fill="#BCAAA4"/>
+                    <line x1="0" y1="350" x2="400" y2="350" stroke="#8D6E63" stroke-width="6"/>
+
+                    <rect x="20" y="20" width="360" height="170" rx="10" fill="#1b4d3e" stroke="#5d4037" stroke-width="8" filter="url(#shadow3D)"/>
+                    <text x="38" y="55" fill="#ffffff" font-size="16" font-weight="bold">【 정유·석유화학 공정개론 】</text>
+                    <text x="38" y="82" fill="#81d4fa" font-size="14" font-weight="bold">CDU 상압증류탑 | NCC 나프타 열분해</text>
+                    <text x="38" y="125" fill="#ffd54f" font-size="15" font-weight="bold">${isHairFalling ? '⚠️ [핵심] CnH2n+2 → C2H4 + C3H6 🤯' : '원유 증류: LPG ➔ 나프타 ➔ 등유/경유'}</text>
+                    <line x1="38" y1="142" x2="360" y2="142" stroke="rgba(255,255,255,0.3)" stroke-dasharray="6,6"/>
+
+                    <g transform="translate(130, 200) scale(1.05)" filter="url(#shadow3D)">
+                        <rect x="10" y="142" width="140" height="20" fill="#8D6E63" rx="4" stroke="#4E342E" stroke-width="2"/>
+                        <path d="M45 110 L105 110 L112 160 L38 160 Z" fill="url(#body3D)"/>
+                        <polygon points="60,110 75,125 90,110" fill="#FFFFFF"/>
+                        <circle cx="75" cy="65" r="48" fill="url(#head3D)"/>
+                        <path d="M28 60 C35 30, 60 20, 75 22 C90 20, 115 30, 122 60 C110 42, 90 40, 75 45 C60 40, 40 42, 28 60 Z" fill="url(#hair3D)"/>
+
+                        ${isHairFalling ? `
+                            <g class="falling-hair-l1">
+                                <path d="M35 30 Q 15 10 5 25" stroke="#5D4037" stroke-width="8" stroke-linecap="round" fill="none"/>
+                            </g>
+                            <g class="falling-hair-r1">
+                                <path d="M115 30 Q 135 10 145 25" stroke="#5D4037" stroke-width="8" stroke-linecap="round" fill="none"/>
+                            </g>
+                            <g class="falling-hair-c">
+                                <path d="M75 20 Q 85 -5 95 10" stroke="#5D4037" stroke-width="7" stroke-linecap="round" fill="none"/>
+                            </g>
+                            <path d="M 45 50 Q 55 56 65 52" stroke="#5D4037" stroke-width="4" stroke-linecap="round" fill="none"/>
+                            <path d="M 85 52 Q 95 56 105 50" stroke="#5D4037" stroke-width="4" stroke-linecap="round" fill="none"/>
+                            <ellipse cx="56" cy="68" rx="9" ry="12" fill="#212121"/>
+                            <ellipse cx="94" cy="68" rx="9" ry="12" fill="#212121"/>
+                            <circle cx="53" cy="63" r="3.5" fill="#FFFFFF"/>
+                            <circle cx="91" cy="63" r="3.5" fill="#FFFFFF"/>
+                            <path d="M 56 75 C 50 85, 52 95, 56 95 C 60 95, 62 85, 56 75 Z" fill="#29B6F6"/>
+                            <path d="M 94 75 C 88 85, 90 95, 94 95 C 98 95, 100 85, 94 75 Z" fill="#29B6F6"/>
+                            <path d="M 64 88 Q 75 81 86 88" stroke="#5D4037" stroke-width="4" stroke-linecap="round" fill="none"/>
+                        ` : `
+                            <ellipse cx="56" cy="68" rx="9" ry="11" fill="#212121"/>
+                            <ellipse cx="94" cy="68" rx="9" ry="11" fill="#212121"/>
+                            <path d="M68 84 Q75 80 82 84" stroke="#5D4037" stroke-width="3" stroke-linecap="round" fill="none"/>
+                        `}
+                    </g>
+                </svg>`;
+            }
+
+            // 🕹️ 조이스틱 제어 로직
+            const joystickContainer = document.getElementById('joystick-container');
+            const joystickThumb = document.getElementById('joystick-thumb');
+
+            function handleJoystickStart(e) {
+                isJoystickActive = true;
+                updateJoystick(e);
+            }
+
+            function handleJoystickMove(e) {
+                if (!isJoystickActive) return;
+                updateJoystick(e);
+            }
+
+            function handleJoystickEnd() {
+                isJoystickActive = false;
+                joystickVec = { x: 0, y: 0 };
+                if (joystickThumb) joystickThumb.style.transform = `translate(0px, 0px)`;
+            }
+
+            function updateJoystick(e) {
+                const rect = joystickContainer.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const touch = e.touches ? e.touches[0] : e;
+                let dx = touch.clientX - centerX;
+                let dy = touch.clientY - centerY;
+                const maxRadius = rect.width / 2.8;
+                const distance = Math.hypot(dx, dy);
+
+                if (distance > maxRadius) {
+                    dx = (dx / distance) * maxRadius;
+                    dy = (dy / distance) * maxRadius;
+                }
+
+                if (joystickThumb) joystickThumb.style.transform = `translate(${dx}px, ${dy}px)`;
+                joystickVec.x = dx / maxRadius;
+                joystickVec.y = dy / maxRadius;
+            }
+
+            if (joystickContainer) {
+                joystickContainer.addEventListener('touchstart', handleJoystickStart, { passive: false });
+                window.addEventListener('touchmove', handleJoystickMove, { passive: false });
+                window.addEventListener('touchend', handleJoystickEnd);
+                joystickContainer.addEventListener('mousedown', handleJoystickStart);
+                window.addEventListener('mousemove', handleJoystickMove);
+                window.addEventListener('mouseup', handleJoystickEnd);
+            }
+
+            window.addEventListener('keydown', e => keysPressed[e.key] = true);
+            window.addEventListener('keyup', e => keysPressed[e.key] = false);
+
+            // 😃 주인공 표정 변경 함수 (GEUNSIK_4 대사일 때 활짝 웃는 표정!)
+            function updatePlayerFace() {
+                const faceGroup = document.getElementById('player-face-features');
+                if (!faceGroup) return;
+
+                const isHappy = (dialogueState === 'GEUNSIK_4' || dialogueState === 'GEUNSIK_END');
+                
+                if (isHappy) {
+                    faceGroup.innerHTML = `
+                        <!-- 활짝 웃는 반달 눈 (^ ^) -->
+                        <path d="M 39 48 Q 46 38 53 48" stroke="#212121" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                        <path d="M 71 48 Q 78 38 85 48" stroke="#212121" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+                        <!-- 귀여운 분홍 볼터치 -->
+                        <ellipse cx="38" cy="56" rx="6" ry="3.5" fill="#FF8A80" opacity="0.85"/>
+                        <ellipse cx="86" cy="56" rx="6" ry="3.5" fill="#FF8A80" opacity="0.85"/>
+                        <!-- 활짝 웃는 입 -->
+                        <path d="M 50 56 Q 62 74 74 56 Z" fill="#D84315" stroke="#5D4037" stroke-width="2"/>
+                    `;
+                } else {
+                    faceGroup.innerHTML = `
+                        <!-- 평소 눈 -->
+                        <ellipse cx="46" cy="46" rx="7" ry="10" fill="#212121"/>
+                        <ellipse cx="78" cy="46" rx="7" ry="10" fill="#212121"/>
+                        <circle cx="44" cy="42" r="3" fill="#FFFFFF"/>
+                        <circle cx="76" cy="42" r="3" fill="#FFFFFF"/>
+                        <!-- 평소 입 -->
+                        <path d="M54 60 Q62 56 70 60" stroke="#5D4037" stroke-width="3" stroke-linecap="round" fill="none"/>
+                    `;
+                }
+            }
+
+            // 🕹️ 60fps 세로 탐색 메인 루프
+            function gameLoop() {
+                const current = scenarios[gameData.currentScene];
+                if (current && current.isWalkMode) {
+                    let moveX = joystickVec.x;
+                    let moveY = joystickVec.y;
+
+                    if (keysPressed['ArrowLeft'] || keysPressed['a']) moveX = -1;
+                    if (keysPressed['ArrowRight'] || keysPressed['d']) moveX = 1;
+                    if (keysPressed['ArrowUp'] || keysPressed['w']) moveY = -1;
+                    if (keysPressed['ArrowDown'] || keysPressed['s']) moveY = 1;
+
+                    playerPos.x += moveX * moveSpeed;
+                    playerPos.y += moveY * moveSpeed;
+
+                    playerPos.x = Math.max(20, Math.min(360, playerPos.x));
+                    playerPos.y = Math.max(30, Math.min(460, playerPos.y));
+
+                    const playerElem = document.getElementById('player-avatar-3d');
+                    if (playerElem) {
+                        playerElem.setAttribute('transform', `translate(${playerPos.x}, ${playerPos.y}) scale(0.48)`);
+                    }
+
+                    // 표정 실시간 업데이트
+                    updatePlayerFace();
+
+                    // 🔍 NPC 근접 감지
+                    let closeNpc = null;
+                    classroomNpcs.forEach(npc => {
+                        const dist = Math.hypot(playerPos.x - npc.x, playerPos.y - npc.y);
+                        if (dist < 50) {
+                            closeNpc = npc;
+                        }
+                    });
+
+                    const txtElem = document.getElementById('dialogue-text');
+                    const tapIndicator = document.getElementById('tap-indicator');
+
+                    if (closeNpc) {
+                        if (currentNearbyNpc !== closeNpc) {
+                            currentNearbyNpc = closeNpc;
+                            dialogueState = 'PROMPT';
+                        }
+
+                        if (dialogueState === 'PROMPT') {
+                            if (txtElem) {
+                                txtElem.innerHTML = `👦 <b>배진울:</b> "안녕? 나는 배진울 이라고 해! 오늘 수업 너무 어렵지 않았니...?"`;
+                            }
+                            if (tapIndicator) tapIndicator.innerText = "👇 터치하여 동기의 대답 듣기";
+                        } else if (closeNpc.isTarget) {
+                            // 🤝 박근식 세부 대화 출력
+                            if (dialogueState === 'GEUNSIK_1') {
+                                if (txtElem) txtElem.innerHTML = `🧑 <b>박근식:</b> "맞아...너무 어렵더라 ㅠ 혹시 몇 살이야?"`;
+                                if (tapIndicator) tapIndicator.innerText = "👇 터치하여 나이 대답하기";
+                            } else if (dialogueState === 'GEUNSIK_2') {
+                                if (txtElem) txtElem.innerHTML = `👦 <b>배진울:</b> "나는 22살이야!"`;
+                                if (tapIndicator) tapIndicator.innerText = "👇 터치하여 근식이 대답 듣기";
+                            } else if (dialogueState === 'GEUNSIK_3') {
+                                if (txtElem) txtElem.innerHTML = `🧑 <b>박근식:</b> "오! 나도 22살이야! 우리 친구할래...? 같이 공부도 하고 밥도 먹고!!"`;
+                                if (tapIndicator) tapIndicator.innerText = "👇 터치하여 대답하기";
+                            } else if (dialogueState === 'GEUNSIK_4' || dialogueState === 'GEUNSIK_END') {
+                                if (txtElem) txtElem.innerHTML = `👦 <b>배진울:</b> "좋아 근식아!!"`;
+                                if (tapIndicator) tapIndicator.innerText = "✨ 근식이와 친구가 되었습니다!";
+                            }
+                        } else {
+                            if (dialogueState === 'TALKING') {
+                                if (txtElem) txtElem.innerHTML = `🧑 <b>${closeNpc.reply}</b>`;
+                                if (tapIndicator) tapIndicator.innerText = "👉 거절당했습니다! 다른 동기에게 다가가 말을 걸어보세요.";
+                            }
+                        }
+                    } else {
+                        currentNearbyNpc = null;
+                        dialogueState = 'IDLE';
+                        if (txtElem && current.isWalkMode) {
+                            txtElem.innerText = "🕹️ [조작] 조이스틱(방향키)으로 움직여서 책상에 앉아있는 동기들에게 다가가보세요!";
+                        }
+                        if (tapIndicator) tapIndicator.innerText = "🕹️ 동기들에게 다가가 대화해보세요!";
+                    }
+                }
+                requestAnimationFrame(gameLoop);
+            }
+            requestAnimationFrame(gameLoop);
+
+            window.toggleBGM = function(e) {
+                if (e) e.stopPropagation();
+                const btn = document.getElementById('bgm-toggle');
+                if(!bgmAudio) return;
+                
+                if(bgmPlaying) {
+                    bgmAudio.pause();
+                    if(btn) btn.innerText = "🎵 BGM 켜기";
+                } else {
+                    bgmAudio.play().catch(err => console.log("자동재생 승인"));
+                    if(btn) btn.innerText = "🔇 BGM 끄기";
+                }
+                bgmPlaying = !bgmPlaying;
+            };
+
+            window.startGame = function() {
+                const titleElement = document.getElementById('title-screen');
+                if (titleElement) titleElement.style.display = 'none';
+                isStarted = true;
+                if (!bgmPlaying && bgmAudio) window.toggleBGM();
+                renderScene();
+            };
+
+            // 👆 화면 터치/클릭 대화 제어
+            window.handleScreenClick = function() {
+                if (!isStarted) return;
+                const current = scenarios[gameData.currentScene];
+                
+                if (current && current.isWalkMode) {
+                    if (currentNearbyNpc) {
+                        if (currentNearbyNpc.isTarget) {
+                            // 🎯 박근식 대화 진행 (GEUNSIK_4 이후 화면 전환 없이 유지)
+                            if (dialogueState === 'PROMPT') dialogueState = 'GEUNSIK_1';
+                            else if (dialogueState === 'GEUNSIK_1') dialogueState = 'GEUNSIK_2';
+                            else if (dialogueState === 'GEUNSIK_2') dialogueState = 'GEUNSIK_3';
+                            else if (dialogueState === 'GEUNSIK_3') dialogueState = 'GEUNSIK_4';
+                            else if (dialogueState === 'GEUNSIK_4') {
+                                gameData.knowledge = 10;
+                                gameData.friendship = 15;
+                                updateUI();
+                                dialogueState = 'GEUNSIK_END';
+                            }
+                        } else {
+                            if (dialogueState === 'PROMPT') dialogueState = 'TALKING';
+                        }
+                    }
+                    return;
+                }
+                advanceDialogue();
+            };
+
+            function advanceDialogue() {
+                if (gameData.currentScene < scenarios.length - 1) {
+                    gameData.currentScene++;
+                } else {
+                    gameData.currentScene = 0;
+                    gameData.knowledge = 0;
+                    gameData.friendship = 0;
+                    playerPos = { x: 50, y: 450 };
+                }
+
+                renderScene();
+            }
+
+            function updateUI() {
+                const kElem = document.getElementById('stat-knowledge');
+                const fElem = document.getElementById('stat-friendship');
+                
+                if (gameData.currentScene <= 3) {
+                    gameData.knowledge = 0;
+                    gameData.friendship = 0;
+                }
+
+                if (kElem) kElem.innerText = gameData.knowledge;
+                if (fElem) fElem.innerText = gameData.friendship;
+            }
+
+            function renderScene() {
+                const current = scenarios[gameData.currentScene];
+                const locElem = document.getElementById('scene-location');
+                const txtElem = document.getElementById('dialogue-text');
+                const mainScreen = document.getElementById('main-screen');
+                const graphicWrapper = document.getElementById('graphic-wrapper');
+                const joystickUI = document.getElementById('joystick-container');
+                const tapIndicator = document.getElementById('tap-indicator');
+
+                if (locElem) locElem.innerText = current.location;
+                if (txtElem) txtElem.innerText = current.text;
+
+                if (gameData.currentScene === 0) {
+                    if (mainScreen) mainScreen.style.backgroundImage = "linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.25)), url('image_28563c.jpg')";
+                } else {
+                    if (mainScreen) {
+                        mainScreen.style.backgroundImage = "none";
+                        mainScreen.style.background = "#e8e0d0";
+                    }
+                }
+
+                if (current.isWalkMode) {
+                    if (joystickUI) joystickUI.style.display = 'block';
+                    if (tapIndicator) tapIndicator.innerText = "🕹️ 동기들에게 다가가 대화해보세요!";
+                } else {
+                    if (joystickUI) joystickUI.style.display = 'none';
+                    if (tapIndicator) tapIndicator.innerText = "화면을 터치하세요 ▼";
+                }
+
+                if (graphicWrapper) graphicWrapper.innerHTML = getSceneGraphic(gameData.currentScene);
+                updateUI();
+            }
+
+            renderScene();
+        });
+    </script>
+</body>
+</html>
